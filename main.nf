@@ -71,7 +71,7 @@ process splitVCF {
   file vcf from vcfs
 
   output:
-  file '*_split.vcf.gz' into sm_vcf
+  file '*_split.vcf.gz' into sm_vcf mode flatten
 
   shell:
   vcf_tag = vcf.baseName.replace(".vcf","")
@@ -95,13 +95,13 @@ process reformat_vcf {
   file '_reformat.txt' into tables
 
   shell:
-  vcf_tag = vcf.replace(".vcf.gz","")
   '''
   file=!{vcf}
+  tabix -p vcf $file
   while IFS= read -r bin
   do
-      bcftools -R $bin $file | bgzip -c > tmp.vcf.gz
-      !{baseDir}/bin/reformat_vcf.R --input_vcf=tmp.vcf.gz --output_table=${file/.vcf*/_reformat.txt} --bin_bed=$bin
+      bcftools view -R $bin $file | bgzip -c > tmp.vcf.gz
+      Rscript !{baseDir}/bin/reformat_vcf.R --input_vcf=tmp.vcf.gz --output_table=${file/.vcf*/_reformat.txt} --bin_bed=$bin
   done < !{bin_files}
   '''
 
