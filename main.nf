@@ -42,8 +42,7 @@ if (params.help) {
     log.info ''
     log.info 'Mandatory arguments:'
     log.info '    --VCF_folder                   FOLDER         Input folder containing VCF files to process (extension .vcf.gz).'
-    log.info '    --regions_info                 FILE           Tab-delimited file containing 3 columns:'
-    log.info '                                                    CHR, START, END, VALUE (location of the bin and value, e.g. mean fold change)'
+    log.info '    --bin_files                    FILE           File containing one line per bin path (bed file) to consider'
     log.info ''
     log.info 'Optional arguments:'
     log.info '    --output_folder                FOLDER         Output folder containing the results (default=REA_output).'
@@ -54,15 +53,15 @@ if (params.help) {
 }
 
 params.VCF_folder = null
-params.regions_info = null
+params.bin_files = null
 params.output_folder = "REA_output"
 
-if(params.VCF_folder == null | params.regions_info == null ){
-  exit 1, "Please specify each of the following parameters: --VCF_folder and --regions_info"
+if(params.VCF_folder == null | params.bin_files == null ){
+  exit 1, "Please specify each of the following parameters: --VCF_folder and --bin_files"
 }
 
 vcfs = Channel.fromPath( params.VCF_folder+'/*.vcf.gz' )
-regions_info=file(regions_info)
+bin_files=file(params.bin_files)
 
 process splitVCF {
 
@@ -77,9 +76,8 @@ process splitVCF {
   shell:
   vcf_tag = vcf.baseName.replace(".vcf","")
   '''
-  file=!{vcf}
-  for sample in `bcftools query -l $file`; do
-   bcftools view -c1 -Oz -s $sample -o ${file/.vcf*/.${sample}_split.vcf.gz} $file
+  for sample in `bcftools query -l !{vcf}`; do
+   bcftools view -c1 -Oz -s $sample -o ${sample}_split.vcf.gz !{vcf}
   done
   '''
 
@@ -91,15 +89,20 @@ process reformat_vcf {
 
   input:
   file vcf from sm_vcf
+  file bin_files
 
   output:
   file '_reformat.txt' into tables
 
   shell:
-  vcf_tag = vcf.baseName.replace(".vcf","")
+  vcf_tag = vcf.replace(".vcf.gz","")
   '''
   file=!{vcf}
-  !{baseDir}/bin/reformat_vcf.R --input_vcf=$file --output_table=${file/.vcf*/_reformat.txt}
+  while IFS= read -r bin
+  do
+      bcftools -R $bin $file | bgzip -c > tmp.vcf.gz
+      !{baseDir}/bin/reformat_vcf.R --input_vcf=tmp.vcf.gz --output_table=${file/.vcf*/_reformat.txt} --bin_bed=$bin
+  done < !{bin_files}
   '''
 
 }
@@ -110,15 +113,14 @@ process REA {
 
   input:
   file table from tables
-  file regions_info
 
   output:
-  file '_reformat.txt' into tables
+  file '_reformat.txt' into res
 
   shell:
   table_tag = table.baseName
   '''
-  !{baseDir}/bin/REA.R --input_table=!{table} --regions_info=!{regions_info}
+  !{baseDir}/bin/REA.R --input_table=!{table}
   '''
 
 }
