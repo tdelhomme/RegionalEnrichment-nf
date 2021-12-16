@@ -72,16 +72,18 @@ process reformat_vcf {
   file bin_files
 
   output:
-  file '*_reformat.txt' into tables
+  file '*_reformat*.txt' into tables
 
   shell:
   tmptag = muts.baseName.replace(".txt", "")
   '''
   file=!{muts}
+  i=1
   while IFS= read -r bin
   do
       Rscript !{baseDir}/bin/extract_bin.R --input_table=!{muts} --bin_bed=$bin --output_table=tmp.txt
-      Rscript !{baseDir}/bin/reformat_vcf.R --input_muts=tmp.txt --output_table=${file/.txt/_reformat.txt} --bin_bed=$bin
+      Rscript !{baseDir}/bin/reformat_vcf.R --input_muts=tmp.txt --output_table=${file/.txt/_reformat_bin${i}.txt} --bin_bed=$bin
+      let "i++"
   done < !{bin_files}
   '''
 
@@ -98,7 +100,6 @@ process REA {
   file '_reformat.txt' into res
 
   shell:
-  table_tag = table.baseName
   '''
   !{baseDir}/bin/REA.R --input_table=!{table}
   '''
