@@ -41,7 +41,7 @@ if (params.help) {
     log.info 'nextflow run main.nf --VCF_folder --regions_info'
     log.info ''
     log.info 'Mandatory arguments:'
-    log.info '    --VCF_folder                   FOLDER         Input folder containing VCF files to process (extension .vcf.gz).'
+    log.info '    --mut_folder                   FOLDER         Input folder containing txt files (one per sample, resuming all mutations).'
     log.info '    --bin_files                    FILE           File containing one line per bin path (bed file) to consider'
     log.info ''
     log.info 'Optional arguments:'
@@ -52,56 +52,36 @@ if (params.help) {
     exit 0
 }
 
-params.VCF_folder = null
+params.mut_folder = null
 params.bin_files = null
 params.output_folder = "REA_output"
 
-if(params.VCF_folder == null | params.bin_files == null ){
-  exit 1, "Please specify each of the following parameters: --VCF_folder and --bin_files"
+if(params.mut_folder == null | params.bin_files == null ){
+  exit 1, "Please specify each of the following parameters: --mut_folder and --bin_files"
 }
 
-vcfs = Channel.fromPath( params.VCF_folder+'/*.vcf.gz' )
+mut_files = Channel.fromPath( params.mut_folder+'/*.txt' )
 bin_files=file(params.bin_files)
-
-process splitVCF {
-
-  tag {vcf_tag}
-
-  input:
-  file vcf from vcfs
-
-  output:
-  file '*_split.vcf.gz' into sm_vcf mode flatten
-
-  shell:
-  vcf_tag = vcf.baseName.replace(".vcf","")
-  '''
-  for sample in `bcftools query -l !{vcf}`; do
-   bcftools view -c1 -Oz -s $sample -o ${sample}_split.vcf.gz !{vcf}
-  done
-  '''
-
-}
 
 process reformat_vcf {
 
-  tag {vcf_tag}
+  tag {tmptag}
 
   input:
-  file vcf from sm_vcf
+  file muts from mut_files
   file bin_files
 
   output:
   file '_reformat.txt' into tables
 
   shell:
+  tmptag = muts.baseName.replace(".txt", "")
   '''
-  file=!{vcf}
-  tabix -p vcf $file
+  file=!{muts}
   while IFS= read -r bin
   do
-      bcftools view -R $bin $file | bgzip -c > tmp.vcf.gz
-      Rscript !{baseDir}/bin/reformat_vcf.R --input_vcf=tmp.vcf.gz --output_table=${file/.vcf*/_reformat.txt} --bin_bed=$bin
+      Rscript !{baseDir}/bin/extract_bin.R --input_table=!{muts} --bin_bed=$bin --output_table=tmp.txt
+      Rscript !{baseDir}/bin/reformat_vcf.R --input_muts=tmp.txt --output_table=${file/.txt/_reformat.txt} --bin_bed=$bin
   done < !{bin_files}
   '''
 
