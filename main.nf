@@ -101,7 +101,7 @@ process REA {
 
   shell:
   '''
-  !{baseDir}/bin/REA.R --input_table=!{table}
+  !{baseDir}/bin/REA.R
   '''
 
 }
