@@ -72,7 +72,7 @@ process reformat_vcf {
   file bin_files
 
   output:
-  file '_reformat.txt' into tables
+  file '*_reformat.txt' into tables
 
   shell:
   tmptag = muts.baseName.replace(".txt", "")
