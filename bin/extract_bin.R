@@ -22,8 +22,11 @@ if(! is.null(args$help)) {
 if(is.null(args$input_table)) {stop("Option --input_table should be provided")} else{input_table=args$input_table}
 if(is.null(args$bin_bed)) {stop("Option --bin_bed should be provided")} else{bin_bed=args$bin_bed}
 if(is.null(args$output_table)) {stop("Option --output_table should be provided")} else{output_table=args$output_table}
+print(paste("INFO: input table is: ", input_table))
+print(paste("INFO: bin bed file is: ", bin_bed))
 
 library(GenomicRanges)
+library(MutationalPatterns)
 library(liftOver)
 
 # chain file for the liftover
@@ -36,11 +39,14 @@ gr19 = makeGRangesFromDataFrame(df = df_bed)
 seqlevelsStyle(gr19) = "UCSC"  # necessary
 grbins = unlist(liftOver(gr19, ch)) # liftover returns a list of Granges objects
 
-grmuts = makeGRangesFromDataFrame(df = read.table(input_table, h=T, sep="\t"))
+df = read.table(input_table, h=T, sep="\t")
+grmuts = makeGRangesFromDataFrame(df)
 
 mutsbin = GenomicRanges::intersect(grmuts, grbins)
 
 res = data.frame(mutsbin)
+res$ref = res[which(res$start == start(mutsbin)), "ref"]
+res$alt = res[which(res$start == start(mutsbin)), "alt"]
 colnames(res)[which(colnames(res) == "seqnames")] = "chr"
 
 write.table(res, file = output_table, quote = FALSE, row.names = F, sep = "\t")

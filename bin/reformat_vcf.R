@@ -28,6 +28,7 @@ library(MutationalPatterns)
 library(GenomicRanges)
 library(Biostrings)
 library(liftOver)
+library("BSgenome.Hsapiens.UCSC.hg38")
 
 # chain file for the liftover
 path = system.file(package="liftOver", "extdata", "hg19ToHg38.over.chain") # if not present, download here: http://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/hg19ToHg38.over.chain.gz
@@ -36,7 +37,6 @@ ch = import.chain(path)
 # mutations
 muts = read.table(input_muts, sep="\t", h=T, stringsAsFactors = F)
 
-
 # nucleotides at risk
 genome = BSgenome.Hsapiens.UCSC.hg38
 df_bed = read.table(bin_bed) ; names(df_bed) = c("chr", "start", "end")
@@ -44,10 +44,9 @@ gr19 = makeGRangesFromDataFrame(df = df_bed)
 k = 3 # length of the nucleotide context
 gr19 = helperMut::extend(x = gr19, upstream = k, downstream = k)
 
-# liftover
+# liftover and get bins counts
 seqlevelsStyle(gr19) = "UCSC"  # necessary
 gr = unlist(liftOver(gr19, ch)) # liftover returns a list of Granges objects
-
 genome_sql = seqlengths(genome)
 seqlengths(gr) = suppressWarnings(genome_sql[seqlevels(gr)])
 gr = GenomicRanges::trim(gr)
@@ -56,5 +55,6 @@ oligo_counts = Biostrings::oligonucleotideFrequency(x = reg, width = k)
 oligo_counts = apply(oligo_counts,2,sum)
 
 # observed mutation types
-nut3_context = MutationalPatterns::type_context(rowRanges(vcf_chunk), "BSgenome.Hsapiens.UCSC.hg38") # get nut3 context for mutations PASS in the sample, SNVs or indels
+grmuts = makeGRangesFromDataFrame(df = read.table(input_muts, h=T, sep="\t"))
+nut3_context = MutationalPatterns::type_context(grmuts, "BSgenome.Hsapiens.UCSC.hg38") # get nut3 context for mutations PASS in the sample, SNVs or indels
 all_mut96 = paste(substr(nut3_context$context,1,1), "[", nut3_context$types, "]", substr(nut3_context$context,3,3), sep = "") # 96 nut
