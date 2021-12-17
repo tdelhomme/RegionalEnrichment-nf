@@ -93,15 +93,17 @@ process REA {
 
   tag {table_tag}
 
+  publishDir params.output_folder, mode: 'copy', pattern: "*out.txt"
+
   input:
   file table from tables
 
   output:
-  file '_reformat.txt' into res
+  file '*out.txt' into res
 
   shell:
   '''
-  !{baseDir}/bin/REA.R
+  Rscript !{baseDir}/bin/REA.R
   '''
 
 }
