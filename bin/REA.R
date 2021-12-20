@@ -12,5 +12,7 @@ dat$bin = as.factor(dat$bin)
 
 sink(paste(gsub("_reformat_bin1.txt", "", input_tables[1]), "_out.txt", sep=""), append = TRUE, type = "output")
 
-MASS::glm.nb(formula = "count ~ bin + offset(lnNt)", data = dat)
+res = MASS::glm.nb(formula = "count ~ bin + offset(lnNt)", data = dat)
 closeAllConnections()
+
+save(res, file = paste(gsub("SNVs_", "", gsub("_reformat_bin1.txt","", input_tables[1])), ".Rdata", sep=""))

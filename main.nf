@@ -93,13 +93,15 @@ process REA {
 
   tag {table_tag}
 
-  publishDir params.output_folder, mode: 'copy', pattern: "*out.txt"
+  publishDir params.output_folder + '/TXT/', mode: 'copy', pattern: "*out.txt"
+  publishDir params.output_folder + '/RDATA/', mode: 'copy', pattern: "*Rdata"
 
   input:
   file table from tables
 
   output:
-  file '*out.txt' into res
+  file '*out.txt' into res1
+  file '*Rdata' into res2
 
   shell:
   '''
