@@ -8,7 +8,7 @@ for(t in input_tables){
   }
 }
 dat$lnNt = log(dat$ntAtRisk)
-dat$bin = as.factor(dat$bin)
+dat$bin = order(dat$bin)
 
 sink(paste(gsub("_reformat_bin1.txt", "", input_tables[1]), "_out.txt", sep=""), append = TRUE, type = "output")
 
