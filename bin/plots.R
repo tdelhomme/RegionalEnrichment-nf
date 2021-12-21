@@ -28,3 +28,4 @@ for(cl in celllines){
 
 pdf("plot.pdf", width = 12, height = 4)
 ggarrange(plotlist=plot_list, ncol=3)
+dev.off()

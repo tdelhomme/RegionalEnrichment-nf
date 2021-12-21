@@ -108,6 +108,7 @@ process REA {
   shell:
   '''
   Rscript !{baseDir}/bin/REA.R
+  Rscript !{baseDir}/bin/plots.R
   '''
 
 }
