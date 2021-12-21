@@ -95,6 +95,7 @@ process REA {
 
   publishDir params.output_folder + '/TXT/', mode: 'copy', pattern: "*out.txt"
   publishDir params.output_folder + '/RDATA/', mode: 'copy', pattern: "*Rdata"
+  publishDir params.output_folder + '/PLOT/', mode: 'copy', pattern: "*pdf"
 
   input:
   file table from tables
@@ -102,6 +103,7 @@ process REA {
   output:
   file '*out.txt' into res1
   file '*Rdata' into res2
+  file '*pdf' into plots
 
   shell:
   '''
