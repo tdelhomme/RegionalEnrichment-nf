@@ -3,8 +3,11 @@ library(MASS)
 input_tables = list.files(path = ".", pattern = "*txt")
 
 for(t in input_tables){
-  if(t == input_tables[[1]]) { dat = read.table(t, h=T, sep="\t", stringsAsFactors = F) } else {
-    dat = rbind(dat,  read.table(t, h=T, sep="\t", stringsAsFactors = F))
+  i=1
+  dattmp = read.table(t, h=T, sep="\t", stringsAsFactors = F)
+  if(!is.na(dattmp[1,1])){
+    if(i==1) { dat = dattmp } else { dat = rbind(dat, dattmp) } 
+    i=i+1
   }
 }
 dat$lnNt = log(dat$ntAtRisk)
