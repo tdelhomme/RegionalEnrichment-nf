@@ -44,9 +44,11 @@ grmuts = makeGRangesFromDataFrame(df)
 
 mutsbin = GenomicRanges::intersect(grmuts, grbins)
 
-res = data.frame(mutsbin)
-res$ref = df[match(start(mutsbin), df$start), "ref"]
-res$alt = df[match(start(mutsbin), df$start), "alt"]
-colnames(res)[which(colnames(res) == "seqnames")] = "chr"
+if(length(mutsbin) > 0){
+  res = data.frame(mutsbin)
+  res$ref = df[match(start(mutsbin), df$start), "ref"]
+  res$alt = df[match(start(mutsbin), df$start), "alt"]
+  colnames(res)[which(colnames(res) == "seqnames")] = "chr"
+} else res = data.frame(chr=NA, start=NA, end=NA, width=NA, strand=NA, ref=NA, alt=NA)
 
 write.table(res, file = output_table, quote = FALSE, row.names = F, sep = "\t")

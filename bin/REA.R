@@ -15,4 +15,4 @@ sink(paste(gsub("_reformat_bin1.txt", "", input_tables[1]), "_out.txt", sep=""),
 res = MASS::glm.nb(formula = "count ~ bin + offset(lnNt)", data = dat)
 closeAllConnections()
 
-save(res, file = paste(gsub("SNVs_", "", gsub("_reformat_bin1.txt","", input_tables[1])), ".Rdata", sep=""))
+save(res, file = paste(gsub("SVs_", "", gsub("SNVs_", "", gsub("_reformat_bin1.txt","", input_tables[1]))), ".Rdata", sep=""))
