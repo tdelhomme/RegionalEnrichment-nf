@@ -44,7 +44,7 @@ if(mut_type == "SNV") {
   print("INFO: we do not consider the nt at risk in the regression and apply simple regression")
   bins = names(table(dat$bin))
   dat2 = data.frame(count = unlist(lapply(bins, function(b) sum(dat[which(dat$bin == b), "count"]))), bin = bins)
-  res = lm(count ~ bin, data=dat)
+  res = cor.test(dat$count, dat$bin,method="pearson")
 }
 closeAllConnections()
 
