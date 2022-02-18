@@ -46,6 +46,7 @@ if (params.help) {
     log.info ''
     log.info 'Optional arguments:'
     log.info '    --output_folder                FOLDER         Output folder containing the results (default=REA_output).'
+    log.info '    --mut_type                     STRING         Mutation type (default is SNV, so we consider nt at risk).'
     log.info 'Flags:'
     log.info '    --help                                        Display this message'
     log.info ''
@@ -55,6 +56,7 @@ if (params.help) {
 params.mut_folder = null
 params.bin_files = null
 params.output_folder = "REA_output"
+params.mut_type = "SNV"
 
 if(params.mut_folder == null | params.bin_files == null ){
   exit 1, "Please specify each of the following parameters: --mut_folder and --bin_files"
@@ -105,7 +107,7 @@ process REA {
 
   shell:
   '''
-  Rscript !{baseDir}/bin/REA.R
+  Rscript !{baseDir}/bin/REA.R --mut_type=!{params.mut_type}
   '''
 
 }
