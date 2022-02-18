@@ -124,7 +124,7 @@ process plot {
 
   shell:
   '''
-  Rscript !{baseDir}/bin/plots.R
+  Rscript !{baseDir}/bin/plots.R --mut_type=!{params.mut_type}
   '''
 
 }
