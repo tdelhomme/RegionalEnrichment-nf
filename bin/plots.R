@@ -37,8 +37,8 @@ for(cl in celllines){
       val = res$coefficients["bin"]
       ddtmp = data.frame(sm = sm , coef=val, cimin = confint(res)["bin",1], cimax = confint(res)["bin",2])
     } else { # correlation test when not SNVs
-      val = as.numeric(t$estimate)
-      ddtmp = data.frame(sm = sm , coef=val, cimin = as.numeric(t$conf.int[1]), cimax = as.numeric(t$conf.int[2]))
+      val = as.numeric(res$estimate)
+      ddtmp = data.frame(sm = sm , coef=val, cimin = as.numeric(res$conf.int[1]), cimax = as.numeric(res$conf.int[2]))
     }
     if(match(sm, allsm)==1){ dd = ddtmp } else { dd = rbind(dd, ddtmp) }
   }
