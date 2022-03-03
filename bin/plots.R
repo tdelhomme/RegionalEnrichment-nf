@@ -48,15 +48,15 @@ for(cl in celllines){
   dd[which(grepl("^P", dd$sm)), "type"] = "Proton"
 
   pp <- ggplot(dd, aes(x=sm, y=coef, ymin=cimin, ymax=cimax, color=type)) +
-  geom_hline(aes(yintercept=0, color=type)) +
-  geom_errorbar(width=0.1) + 
-  geom_point() +
+  geom_hline(aes(yintercept=0)) +
+  geom_errorbar(width=0.1, size=1) + 
+  geom_point(size=2) +
   coord_flip() +
   theme_classic() + ggtitle(cl) +
   scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"))
   plot_list[[match(cl, celllines)]] = pp
 }
 
-pdf("plot.pdf", width = 12, height = 4)
+pdf("plot.pdf", width = 10, height = 3)
 ggarrange(plotlist=plot_list, ncol=3)
 dev.off()

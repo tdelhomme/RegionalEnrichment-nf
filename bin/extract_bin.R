@@ -37,7 +37,7 @@ df_bed = read.table(bin_bed) ; names(df_bed) = c("chr", "start", "end")
 gr19 = makeGRangesFromDataFrame(df = df_bed)
 # liftover
 seqlevelsStyle(gr19) = "UCSC"  # necessary
-grbins = unlist(liftOver(gr19, ch)) # liftover returns a list of Granges objects -- here we liftover the bed from hg38 to hg19
+grbins = unlist(liftOver(gr19, ch)) # liftover returns a list of Granges objects -- here we liftover the bed from hg19 to hg38
 
 df = read.table(input_table, h=T, sep="\t")
 grmuts = makeGRangesFromDataFrame(df)
