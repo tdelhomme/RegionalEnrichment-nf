@@ -96,6 +96,7 @@ process REA {
   tag {table_tag}
 
   publishDir params.output_folder + '/TXT/', mode: 'copy', pattern: "*out.txt"
+  publishDir params.output_folder + '/TXT/', mode: 'copy', pattern: "*allbins.txt"
   publishDir params.output_folder + '/RDATA/', mode: 'copy', pattern: "*Rdata"
 
   input:
@@ -104,6 +105,7 @@ process REA {
   output:
   file '*out.txt' into res1
   file '*Rdata' into res2
+  file '*allbins.txt' into res3
 
   shell:
   '''

@@ -23,7 +23,7 @@ print(paste(date(), " INFO: mutation type to consider is: ", mut_type, sep=""))
 
 library(MASS)
 
-input_tables = list.files(path = ".", pattern = "*bin*")
+input_tables = list.files(path = ".", pattern = "_bin*")
 
 i=1
 for(t in input_tables){
@@ -33,6 +33,7 @@ for(t in input_tables){
     i=i+1
   }
 }
+write.table(dat, file = paste(unlist(strsplit(input_tables[1], "_reformat"))[[1]], "_allbins.txt", sep=""), quote = FALSE, row.names = F, sep = "\t")
 dat$lnNt = log(dat$ntAtRisk)
 dat$bin = as.numeric(factor(dat$bin))
 
